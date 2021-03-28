@@ -49,3 +49,28 @@ clf.fit(X_train,y_train)
 clf.score(X_train,y_train) #0.8406040268456376 - на train классификатор стал работать хуже
 clf.score(X_test, y_test) #0.8067796610169492 - для тестовой выборки классификатор стал работать лучше
 
+
+max_depth_values=range(1, 100)
+scores_data=pd.DataFrame() #создадим пустой дф для сохранения в него результатов обучения
+for max_depth in max_depth_values: #для каждого значения глубины дерева в массиве выше
+    clf = tree.DecisionTreeClassifier(criterion='entropy', max_depth=max_depth) #инициировать класс-ор с указанной глубиной
+    clf.fit(X_train, y_train) #обучаться на трейн выборке
+    train_score = clf.score(X_train, y_train) #предсказывать точность классификации на этой же выборке
+    test_score = clf.score(X_test, y_test) #и на тестовой
+    
+    temp_score_data = pd.DataFrame({'max_depth': [max_depth], 'train_score': [train_score], 'test_score': [test_score]})
+
+    scores_data=scores_data.append(temp_score_data)
+ 
+scores_data.head()
+scores_data_long=pd.melt(scores_data, id_vars=['max_depth'], value_vars=['train_score','test_score'],
+                                              var_name='set_type', value_name='score')
+scores_data_long.head() #теперь для каждой глубины дерева по два значения: для set_type: train and test
+
+sns.lineplot(x='max_depth', y='score',hue='set_type',data=scores_data_long) #посмотрим зависимость точности от глубины
+plt.show()
+'''С увеличением количества деревьев данные обучаются точнее -train_score. Но с увеличеним train_score и глубины test_score
+постепенно снижается. Где-то на промежутке 0-2 дерево недообучено, далее оптимальное состояние, а дальнейшее углубление дерева
+приводит к переобучению модели'''
+
+
