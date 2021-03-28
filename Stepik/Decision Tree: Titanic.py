@@ -6,7 +6,7 @@ from sklearn import tree
 
 from graphviz  import Source
 
-titanic_data=pd.read_csv('C:/Users/Администратор.WIN-U1NLG8MM702/Downloads/train.csv')
+titanic_data=pd.read_csv('C:/Users/.../Downloads/train.csv')
 titanic_data.isnull().sum() #проверим кол-во пропущенных значений по переменным
 X=titanic_data.drop(['PassengerId','Survived','Name','Ticket','Cabin'], axis=1) #удалим ненужные для вычисления закономерностей колонки
 y=titanic_data.Survived #переменная, которую будем предсказывать
