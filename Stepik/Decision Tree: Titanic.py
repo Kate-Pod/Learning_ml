@@ -73,4 +73,37 @@ plt.show()
 постепенно снижается. Где-то на промежутке 0-2 дерево недообучено, далее оптимальное состояние, а дальнейшее углубление дерева
 приводит к переобучению модели'''
 
+#КРОСС-ВАЛИДАЦИЯ
+from sklearn.model_selection import cross_val_score
+clf=tree.DecisionTreeClassifier(criterion='entropy',max_depth=4)
+cross_val_score(clf, X_train, y_train, cv=5) 
+'''array([0.76666667, 0.82352941, 0.78991597, 0.75630252, 0.80672269]) - это точность классификатора при разбиении X_train & y_train
+на 5 равных частей'''
+cross_val_score(clf, X_train, y_train, cv=5).mean() #средняя точность
 
+#Повторим вычисление точностей
+max_depth_values=range(1, 100)
+scores_data=pd.DataFrame()
+for max_depth in max_depth_values: 
+    clf = tree.DecisionTreeClassifier(criterion='entropy', max_depth=max_depth) 
+    clf.fit(X_train, y_train) 
+    train_score = clf.score(X_train, y_train) 
+    test_score = clf.score(X_test, y_test)
+
+    mean_cross_val_score=cross_val_score(clf, X_train, y_train, cv=5).mean()
+    
+    temp_score_data = pd.DataFrame({'max_depth': [max_depth], 'train_score': [train_score], 'test_score': [test_score],
+                                    'cross_val_score':[mean_cross_val_score]})
+
+    scores_data=scores_data.append(temp_score_data)
+scores_data.head()
+scores_data_long=pd.melt(scores_data, id_vars=['max_depth'], value_vars=['train_score','test_score', 'cross_val_score'],
+                                              var_name='set_type', value_name='score')
+scores_data_long.head()
+
+sns.lineplot(x='max_depth', y='score',hue='set_type',data=scores_data_long) #посмотрим зависимость точности от глубины
+plt.show()
+scores_data_long.query("set_type=='cross_val_score'").head(20) #видим при какой глубине макс значение кросс-валидации
+best_clf = tree.DecisionTreeClassifier(criterion='entropy', max_depth=6)
+best_clf.fit(X_train, y_train)
+best_clf.score(X_test, y_test) #0.7661016949152543
