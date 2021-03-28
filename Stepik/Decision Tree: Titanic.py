@@ -107,3 +107,18 @@ scores_data_long.query("set_type=='cross_val_score'").head(20) #видим пр�
 best_clf = tree.DecisionTreeClassifier(criterion='entropy', max_depth=6)
 best_clf.fit(X_train, y_train)
 best_clf.score(X_test, y_test) #0.7661016949152543
+
+
+#Подбор параметров
+from sklearn.model_selection import GridSearchCV
+parameters={'criterion': ['gini', 'entropy'], 'max_depth':range(1,30)}
+grid_search_cv_clf=GridSearchCV(clf,parameters, cv=5)
+grid_search_cv_clf.fit(X_train, y_train)
+grid_search_cv_clf.best_params_
+best_clf=grid_search_cv_clf.best_estimator_
+best_clf.score(X_test, y_test) #0.8067796610169492
+
+from sklearn.metrics import precision_score, recall_score
+y_pred=best_clf.predict(X_test)
+precision_score(y_test, y_pred) #0.8387096774193549
+recall_score(y_test, y_pred) #0.65
